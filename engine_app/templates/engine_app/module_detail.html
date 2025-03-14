@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Produk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
+        <span class="text-lg font-semibold">Anda masuk sebagai: {{ role_name }}</span>
+        <a href="{% url 'home' %}" class="text-white hover:underline">Home</a>
+    </nav>
+
+    <div class="max-w-4xl mx-auto mt-8 p-6 bg-white shadow rounded-lg">
+        <h1 class="text-2xl font-bold mb-4">Daftar Produk</h1>
+
+        <!-- Product Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-300 px-4 py-2">Nama Produk</th>
+                        <th class="border border-gray-300 px-4 py-2">Harga (Rp)</th>
+                        <th class="border border-gray-300 px-4 py-2">Stok</th>
+                        <th class="border border-gray-300 px-4 py-2">Barcode</th>
+                        <th class="border border-gray-300 px-4 py-2">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product_obj in product_objs %}
+                    <tr class="bg-white hover:bg-gray-100">
+                        <td class="border border-gray-300 px-4 py-2">{{ product_obj.name }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ product_obj.price }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ product_obj.stock }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            {% if product_obj.barcode %}
+                                <img src="{{ product_obj.barcode.url }}" alt="Barcode" class="h-16">
+                            {% else %}
+                                <span class="text-gray-500">Barcode not available</span>
+                            {% endif %}
+                        </td>
+
+                        {% if role == role_choices.MANAGER %}
+                            <td class="border border-gray-300 px-4 py-2 text-center">
+                                <form method="post" onsubmit="return confirm('Are you sure to delete this data?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="delete_product_id" value="{{ product_obj.id }}">
+                                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                                        Hapus
+                                    </button>
+                                </form>
+
+                                <a href="{% url 'product_detail' product_obj.id %}" class="text-blue-500 hover:underline">
+                                    Detail
+                                </a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+                            Tidak ada produk.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Product Form -->
+        {% if role == role_choices.MANAGER or role == role_choices.USER %}
+            <div class="mt-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">Tambah Produk</h2>
+                <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <!-- Additional Fields -->
+                    <h3 class="text-lg font-semibold mt-4">Additional Fields</h3>
+                    {% for field_obj in additional_field_objs %}
+                        <div>
+                            <label class="block font-medium">{{ field_obj.name }}</label>
+                            {% if field_obj.data_type == 1 %}
+                                <input type="number" name="additional_field_{{ field_obj.id }}" class="border rounded px-2 py-1 w-full">
+                            {% else %}
+                                <input type="text" name="additional_field_{{ field_obj.id }}" class="border rounded px-2 py-1 w-full">
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    {% if form.errors %}
+                        <p class="text-red-500 mt-2">{{ form.errors }}</p>
+                    {% endif %}
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        Tambah Produk
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

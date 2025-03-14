@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
+        <span class="text-lg font-semibold">Anda masuk sebagai: {{ role_name }}</span>
+        <a href="{% url 'home' %}" class="text-white hover:underline">Home</a>
+    </nav>
+
+    <div class="max-w-4xl mx-auto mt-8 p-4 bg-white shadow rounded-lg">
+        <h1 class="text-2xl font-bold mb-4">Daftar Module</h1>
+        <div class="overflow-x-auto">
+            <!-- Module List -->
+            <table class="w-full border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-300 px-4 py-2">Nama Module</th>
+                        <th class="border border-gray-300 px-4 py-2">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for installed_module_obj in installed_module_objs %}
+                    <tr class="bg-white hover:bg-gray-100">
+                        <td class="border border-gray-300 px-4 py-2">{{ installed_module_obj.name }}</td>
+                        <td class="border border-gray-300 px-4 py-2 flex space-x-2">
+
+                            {% if role == role_choices.MANAGER or role == role_choices.USER %}
+                                <form action="{% url 'additional_fields' module_id=installed_module_obj.id %}" method="get">
+                                    <button type="submit" class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">
+                                        Upgrade
+                                    </button>
+                                </form>
+                            {% endif %}
+                             
+                            {% if role == role_choices.MANAGER %}
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="uninstalled_module_id" value="{{ installed_module_obj.id }}">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to uninstall this module?')"
+                                        class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600">
+                                        Uninstall
+                                    </button>
+                                </form>
+                            {% endif %}
+                            <a href="{% url 'module_detail' module_id=installed_module_obj.id %}" class="text-blue-500 hover:underline">Lihat Detail</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="border border-gray-300 px-4 py-2 text-center text-gray-500">Tidak ada aplikasi yang terinstal.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Install New Module Form -->
+            {% if role == role_choices.MANAGER or role == role_choices.USER %}
+                <form method="post" class="max-w-4xl mx-auto mt-4 p-4 bg-white shadow rounded-lg">
+                    {% csrf_token %}
+                    <h2 class="text-lg font-semibold mb-2">Tambah Module Baru</h2>
+                    <div class="flex space-x-2">
+                        {{ form.name }}
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Tambah</button>
+                    </div>
+                    
+                    {% if form.errors.name %}
+                        <p class="text-red-500 mt-2">{{ form.errors.name.0 }}</p>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

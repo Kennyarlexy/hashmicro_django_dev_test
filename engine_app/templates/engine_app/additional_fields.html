@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
+        <span class="text-lg font-semibold">Anda masuk sebagai: {{ role_name }}</span>
+        <a href="{% url 'home' %}" class="text-white hover:underline">Home</a>
+    </nav>
+
+    <div class="max-w-4xl mx-auto mt-8 p-4 bg-white shadow rounded-lg">
+        <h1 class="text-2xl font-semibold mb-4">Additional Field Metadata</h1>
+    
+        <!-- Table of existing fields -->
+        <table class="w-full border-collapse border border-gray-300 mb-6">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-gray-300 px-4 py-2">Name</th>
+                    <th class="border border-gray-300 px-4 py-2">Data Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field_metadata in field_metadata_objs %}
+                <tr class="bg-white hover:bg-gray-100">
+                    <td class="border border-gray-300 px-4 py-2">{{ field_metadata.name }}</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        {{ field_metadata.get_data_type_display }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+                        No additional fields yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <!-- Form to add new additional fields -->
+        <h2 class="text-xl font-semibold mb-2">Add New Field</h2>
+        <form method="post" class="bg-white p-4 rounded-lg shadow-md">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-gray-700">Field Name</label>
+                {{ form.name }}
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Data Type</label>
+                {{ form.data_type }}
+            </div>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Add Field
+            </button>
+        </form>
+    </div>
+</body>
+</html>

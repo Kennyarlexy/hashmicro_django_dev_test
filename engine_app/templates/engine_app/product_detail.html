@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Produk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
+        <span class="text-lg font-semibold">Anda masuk sebagai: {{ role_name }}</span>
+        <a href="{% url 'home' %}" class="text-white hover:underline">Home</a>
+    </nav>
+
+    <div class="max-w-4xl mx-auto mt-8 p-6 bg-white shadow rounded-lg">
+        <h1 class="text-2xl font-bold mb-4">Detail Produk: {{ product.name }}</h1>
+
+        <table class="w-full border-collapse border border-gray-300">
+            <tbody>
+                <tr class="bg-gray-200">
+                    <td class="border border-gray-300 px-4 py-2 font-semibold">Nama Produk</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2 font-semibold">Harga (Rp)</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.price }}</td>
+                </tr>
+                <tr class="bg-gray-200">
+                    <td class="border border-gray-300 px-4 py-2 font-semibold">Stok</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.stock }}</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2 font-semibold">Barcode</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        {% if product.barcode %}
+                            <img src="{{ product.barcode.url }}" alt="Barcode" class="h-16">
+                        {% else %}
+                            <span class="text-gray-500">Barcode not available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Additional Fields Section -->
+        <h2 class="text-xl font-semibold mt-6 mb-2">Field Tambahan</h2>
+
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-gray-300 px-4 py-2">Nama Field</th>
+                    <th class="border border-gray-300 px-4 py-2">Tipe Data</th>
+                    <th class="border border-gray-300 px-4 py-2">Nilai</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field_obj in additional_field_objs %}
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">{{ field_obj.name }}</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        {% if field_obj.data_type == 1 %}
+                            Integer
+                        {% else %}
+                            String
+                        {% endif %}
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        {% if field_obj.value %}
+                            {{ field_obj.value.0.value }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+                        Tidak ada field tambahan.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{% url 'module_detail' module_id %}" class="mt-4 inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            Kembali
+        </a>
+    </div>
+</body>
+</html>
